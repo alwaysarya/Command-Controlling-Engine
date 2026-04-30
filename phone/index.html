@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMD ENGINE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>CMD ENGINE</h1>
+        <p id="status">Connected</p>
+        <input type="text" id="cmd" placeholder="Type a command...">
+        <button onclick="sendCmd()">SEND</button>
+        <div class="btns">
+            <button onclick="quick('open notepad')">Notepad</button>
+            <button onclick="quick('what time is it')">Time</button>
+            <button onclick="quick('volume up')">Vol+</button>
+            <button onclick="quick('volume down')">Vol-</button>
+            <button onclick="quick('screenshot')">Screenshot</button>
+            <button onclick="quick('lock screen')">Lock</button>
+            <button onclick="quick('open chrome')">Chrome</button>
+            <button onclick="quick('tell date')">Date</button>
+        </div>
+        <div id="log"></div>
+    </div>
+    <script>
+        function sendCmd() {
+            var c = document.getElementById('cmd').value;
+            if (!c) return;
+            document.getElementById('status').innerText = 'Sending...';
+            fetch('/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: c})
+            })
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('status').innerText = d.result;
+                var l = document.getElementById('log');
+                l.innerHTML = '<p><b>' + c + '</b>: ' + d.result + '</p>' + l.innerHTML;
+            })
+            .catch(e => {
+                document.getElementById('status').innerText = 'Error';
+            });
+        }
+        function quick(c) {
+            document.getElementById('cmd').value = c;
+            sendCmd();
+        }
+        document.getElementById('cmd').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendCmd();
+        });
+    </script>
+</body>
+</html>
